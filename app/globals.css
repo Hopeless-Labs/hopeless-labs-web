@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+/* Light defaults, overridden by `prefers-color-scheme: dark`. Both
+ * sets live as CSS variables so Tailwind utilities like `bg-muted`
+ * and `text-subtle` follow the active scheme without a `dark:` prefix.
+ * Brand palette mirrors the ruso-frontend (orange accent). */
+:root {
+  --background: #fafafa;
+  --foreground: #0a0a0a;
+  --muted: #f4f4f5;
+  --border: #e4e4e7;
+  --subtle: #71717a;
+  --accent: #ea580c;
+  --accent-strong: #c2410c;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #fafafa;
+    --muted: #18181b;
+    --border: #27272a;
+    --subtle: #a1a1aa;
+    --accent: #f97316;
+    --accent-strong: #fb923c;
+  }
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-subtle: var(--subtle);
+  --color-accent: var(--accent);
+  --color-accent-strong: var(--accent-strong);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html,
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans), Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Respect users who ask for reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
