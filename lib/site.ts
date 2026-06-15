@@ -49,7 +49,7 @@ export const TEAM: ReadonlyArray<Member> = [
   },
   {
     name: "Choirul Huda",
-    role: "Security Researcher",
+    role: "Security Researcher & Project Manager",
     image: "https://github.com/cehuda1.png",
     href: "https://github.com/cehuda1",
   },
