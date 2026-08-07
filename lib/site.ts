@@ -53,6 +53,12 @@ export const TEAM: ReadonlyArray<Member> = [
     image: "https://github.com/cehuda1.png",
     href: "https://github.com/cehuda1",
   },
+  {
+    name: "ngg1h",
+    role: "Bug Bounty Hunter",
+    image: "https://github.com/ngg1h.png",
+    href: "https://github.com/ngg1h",
+  },
 ];
 
 export type Product = {
