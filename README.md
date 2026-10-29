@@ -26,11 +26,33 @@ of HTML/CSS/JS that any static host or CDN can serve.
 
 ## Structure
 
-- `app/` — routes (`/`, `/products`, `/about`), root layout + global SEO,
-  `sitemap.ts`, `robots.ts`, `manifest.ts`, `icon.svg`.
+- `app/` — routes (`/`, `/products`, `/blog`, `/team`, `/about`), root layout +
+  global SEO, `sitemap.ts`, `robots.ts`, `manifest.ts`, `icon.svg`, `rss.xml`.
 - `components/` — `Header`, `Footer`.
+- `content/blog/` — one Markdown file per post. The filename is the slug.
 - `lib/site.ts` — single source of truth for site constants, nav, and the
   product catalogue.
+- `lib/blog.ts` — reads `content/blog`, parses frontmatter, renders Markdown.
+
+## Blog
+
+Add a file to `content/blog/<slug>.md` with this frontmatter:
+
+```markdown
+---
+title: "Post title"
+summary: "One or two sentences for the index page and social cards."
+date: 2026-10-27
+author: jeagercoder
+tags: [rsl, tutorial]
+draft: false
+---
+```
+
+`title`, `summary`, `date`, and `author` are used by the page and by
+`/rss.xml`; `tags` render as chips; `draft: true` hides the post from the site
+and the sitemap. Posts are sorted by `date`, newest first, and the index,
+sitemap, and feed update on the next build.
 
 ## SEO
 
