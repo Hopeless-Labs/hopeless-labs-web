@@ -37,7 +37,7 @@ export default function TeamPage() {
         </p>
       </header>
 
-      <ul className="mt-12 grid grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
+      <ul className="mt-12 grid auto-rows-fr grid-cols-2 gap-5 sm:grid-cols-3 lg:grid-cols-4">
         {TEAM.map((member) => (
           <li key={member.name}>
             <MemberCard member={member} />
