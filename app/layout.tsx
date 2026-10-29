@@ -83,7 +83,10 @@ export default function RootLayout({
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">
+      {/* suppressHydrationWarning: browser extensions (e.g. ColorZilla injects
+          cz-shortcut-listen) mutate <body> before hydration, which otherwise
+          logs a mismatch warning on every page load. Scoped to this element. */}
+      <body className="flex min-h-full flex-col" suppressHydrationWarning>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}
