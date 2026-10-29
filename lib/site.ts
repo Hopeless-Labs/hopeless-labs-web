@@ -17,6 +17,7 @@ export const SITE = {
 export const NAV: ReadonlyArray<{ href: string; label: string }> = [
   { href: "/", label: "Home" },
   { href: "/products", label: "Products" },
+  { href: "/blog", label: "Blog" },
   { href: "/team", label: "Team" },
   { href: "/about", label: "About" },
 ];
