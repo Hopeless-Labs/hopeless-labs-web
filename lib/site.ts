@@ -72,6 +72,12 @@ export const TEAM: ReadonlyArray<Member> = [
     image: "https://github.com/allifiz.png",
     href: "https://github.com/allifiz",
   },
+  {
+    name: "Pratama Artana",
+    role: "Security Researcher",
+    image: "/dika.jpg",
+    href: "https://github.com/nandhika16",
+  },
 ];
 
 export type Product = {
