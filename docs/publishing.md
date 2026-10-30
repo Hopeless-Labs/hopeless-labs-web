@@ -120,92 +120,31 @@ Setelah tersimpan, kembali ke daftar artikel, dan statistik di atas daftar
 
 ## 4. Format Markdown yang didukung
 
-Editor memakai Markdown GFM (GitHub Flavored Markdown). Yang paling sering
-dipakai:
+Buka **[`markdown-cheatsheet.html`](markdown-cheatsheet.html)** (klik dua kali di
+file explorer, tidak butuh server atau internet) — di sana setiap format
+diperlihatkan berdampingan: apa yang diketik dan hasilnya di situs.
 
-### Sub-judul
+Yang paling sering dipakai:
 
-Pakai `##` untuk sub-judul dan `###` untuk sub-sub-judul:
-
-```markdown
-## Langkah pertama
-
-### Kalau perlu lebih dalam
-```
-
-Pakai `##`, jangan `#`. Judul artikel sudah memakai level tertinggi, jadi `#`
-di badan artikel bikin susunannya kacau.
-
-### Cetak tebal dan miring
-
-```markdown
-**tebal** dan *miring*, juga ~~coret~~
-```
-
-### Daftar
-
-```markdown
-- item tanpa urutan
-- item kedua
-
-1. langkah pertama
-2. langkah kedua
-
-- [ ] belum selesai
-- [x] sudah selesai
-```
-
-### Tautan
-
-```markdown
-[teks yang tampil](https://contoh.com)
-```
-
-### Gambar
-
-```markdown
-![keterangan gambar](https://contoh.com/gambar.png)
-```
-
-Tulis keterangan gambarnya (bagian dalam `[]`) — itu dibaca screen reader dan
-mesin pencari.
-
-### Blok kode
-
-Pakai tiga backtick. Tulis nama bahasanya, walaupun belum ada pewarnaan sintaks
-(tampilannya monospace polos):
-
-````markdown
-```bash
-npm run build
-```
-````
-
-### Kode singkat di dalam kalimat
-
-Pakai satu backtick: `` `npm run build` `` → `npm run build`.
-
-### Kutipan
-
-```markdown
-> Catatan yang ditarik keluar dari alur paragraf.
-```
-
-### Tabel
-
-```markdown
-| Kolom | Isi |
+| Kebutuhan | Tulis |
 | --- | --- |
-| satu | dua |
-```
+| Sub-judul | `## Sub judul` (jangan `#`) |
+| Sub-sub-judul | `### Lebih dalam` |
+| Tebal / miring / coret | `**tebal**` / `*miring*` / `~~coret~~` |
+| Daftar | `- item` atau `1. item` |
+| Tautan | `[teks](https://contoh.com)` |
+| Gambar | `![keterangan](https://contoh.com/gambar.png)` |
+| Kode singkat | `` `npm run build` `` |
+| Blok kode | tiga backtick, nama bahasa setelah pembuka |
+| Tabel | baris judul, baris `\| --- \|`, lalu isi |
+| Kutipan | `> pernyataan` |
+| Garis pemisah | `---` (dengan baris kosong di atas-bawahnya) |
 
-### Garis pemisah
+Tiga kesalahan yang paling sering terjadi:
 
-```markdown
----
-```
-
----
+1. memakai `#` untuk judul — tidak digayakan, tampil sebagai teks biasa
+2. tidak memberi baris kosong antar blok — semuanya menempel jadi satu paragraf
+3. tabel tanpa baris pemisah `| --- |` — tampil sebagai teks dengan garis tegak
 
 ## 5. Setelah menekan Save
 
@@ -292,3 +231,7 @@ kalau sedang mengedit artikel yang sama.
 - Artikel dibaca saat build di `lib/blog.ts`; setelah publish, situs perlu
   di-build ulang
 - Membuat akun admin baru: lihat README, bagian "First admin"
+- Referensi format: `docs/markdown-cheatsheet.html` (berdiri sendiri, tanpa build).
+  Pratinjau di dokumen itu memakai gaya dari `app/globals.css`, dan isinya
+  dicocokkan dengan `node scripts/check-markdown.mjs` — jalankan ulang kalau
+  ada format baru yang mau didokumentasikan.

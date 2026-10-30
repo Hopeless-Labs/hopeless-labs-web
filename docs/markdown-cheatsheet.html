@@ -1,0 +1,857 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panduan Format Markdown — Blog Hopeless Labs</title>
+<meta name="description" content="Referensi format Markdown untuk menulis artikel di panel admin Hopeless Labs: tabel, gambar, kode, daftar, dan jebakan yang harus dihindari.">
+<style>
+/* ---------------------------------------------------------------------------
+   Palet disalin dari app/globals.css (satu-satunya sumber warna situs).
+   Kalau palet situs berubah, salin ulang blok :root dan .prose di bawah.
+   --------------------------------------------------------------------------- */
+:root {
+  --background: #fafafa;
+  --foreground: #0a0a0a;
+  --muted: #f4f4f5;
+  --border: #e4e4e7;
+  --subtle: #71717a;
+  --accent: #ea580c;
+  --accent-strong: #c2410c;
+  --ok: #16a34a;
+  --bad: #dc2626;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #fafafa;
+    --muted: #18181b;
+    --border: #27272a;
+    --subtle: #a1a1aa;
+    --accent: #f97316;
+    --accent-strong: #fb923c;
+    --ok: #4ade80;
+    --bad: #f87171;
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  margin: 0;
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+}
+
+.wrap {
+  display: grid;
+  grid-template-columns: 15rem minmax(0, 1fr);
+  gap: 3rem;
+  max-width: 74rem;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 6rem;
+}
+
+/* ---------- header ---------- */
+
+header.top { border-bottom: 1px solid var(--border); }
+header.top .inner { max-width: 74rem; margin: 0 auto; padding: 2rem 1.5rem 1.75rem; }
+.brand {
+  font-family: var(--mono); font-size: .8125rem; font-weight: 700;
+  letter-spacing: .02em; color: var(--accent); margin: 0;
+}
+h1 { margin: .75rem 0 0; font-size: 2rem; line-height: 1.2; letter-spacing: -.02em; }
+.lede { margin: .85rem 0 0; max-width: 44rem; color: var(--subtle); font-size: 1.0625rem; }
+
+/* ---------- sidebar ---------- */
+
+nav.toc {
+  position: sticky; top: 1.5rem; align-self: start;
+  max-height: calc(100vh - 3rem); overflow-y: auto;
+  border-right: 1px solid var(--border); padding-right: 1.25rem;
+  font-size: .8125rem;
+}
+nav.toc p { margin: 0 0 .5rem; font-family: var(--mono); font-size: .6875rem; letter-spacing: .08em; text-transform: uppercase; color: var(--subtle); }
+nav.toc p + p { margin-top: 1.25rem; }
+nav.toc a { display: block; padding: .175rem 0; color: var(--subtle); text-decoration: none; }
+nav.toc a:hover, nav.toc a:focus-visible { color: var(--accent); }
+
+/* Declared after the base rules above on purpose: an earlier @media block loses
+   to a later rule of the same specificity, which would leave the sidebar sticky
+   on a phone. */
+@media (max-width: 60rem) {
+  .wrap { grid-template-columns: minmax(0, 1fr); gap: 1.5rem; padding-top: 1.5rem; }
+  nav.toc {
+    position: static; max-height: none;
+    border-right: 0; border-bottom: 1px solid var(--border);
+    padding: 0 0 1rem;
+  }
+}
+
+/* ---------- sections ---------- */
+
+main { min-width: 0; }
+section { scroll-margin-top: 1.5rem; padding-bottom: 2.5rem; }
+section + section { border-top: 1px solid var(--border); padding-top: 2.5rem; }
+h2 { margin: 0 0 .35rem; font-size: 1.375rem; font-weight: 600; letter-spacing: -.01em; }
+h3 { margin: 2rem 0 .25rem; font-size: 1.0625rem; font-weight: 600; }
+section > p { margin: .5rem 0 1.25rem; max-width: 46rem; color: var(--subtle); }
+.note {
+  margin: 1rem 0; padding: .7rem .9rem; border-left: 2px solid var(--accent);
+  background: var(--muted); border-radius: 0 6px 6px 0; font-size: .875rem; color: var(--subtle);
+}
+.note strong { color: var(--foreground); }
+.note.bad { border-left-color: var(--bad); }
+.note.ok { border-left-color: var(--ok); }
+code.i { font-family: var(--mono); font-size: .875em; background: var(--muted); border: 1px solid var(--border); border-radius: 5px; padding: .1em .35em; }
+
+/* ---------- syntax → result pair ---------- */
+
+.pair {
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 0; margin: 1rem 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden;
+}
+@media (max-width: 46rem) { .pair { grid-template-columns: minmax(0, 1fr); } }
+
+.pair > .col { min-width: 0; }
+.pair > .col + .col { border-left: 1px solid var(--border); }
+@media (max-width: 46rem) { .pair > .col + .col { border-left: 0; border-top: 1px solid var(--border); } }
+
+.col .head {
+  display: flex; align-items: center; justify-content: space-between; gap: .75rem;
+  padding: .4rem .75rem; border-bottom: 1px solid var(--border); background: var(--muted);
+  font-family: var(--mono); font-size: .6875rem; letter-spacing: .06em; text-transform: uppercase; color: var(--subtle);
+}
+
+.col pre {
+  margin: 0; padding: .85rem .95rem; overflow-x: auto;
+  font-family: var(--mono); font-size: .8125rem; line-height: 1.65; color: var(--foreground);
+  white-space: pre;
+}
+
+.col .preview { padding: .85rem .95rem; }
+
+button.copy {
+  border: 1px solid var(--border); background: var(--background); color: var(--subtle);
+  border-radius: 5px; padding: .05rem .4rem; font-family: var(--mono); font-size: .625rem;
+  text-transform: none; letter-spacing: 0; cursor: pointer;
+}
+button.copy:hover { border-color: var(--accent); color: var(--accent); }
+
+/* ---------- tables ---------- */
+
+table.ref { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: .875rem; }
+table.ref th, table.ref td { border: 1px solid var(--border); padding: .5rem .7rem; text-align: left; vertical-align: top; }
+table.ref th { background: var(--muted); font-weight: 600; font-size: .8125rem; }
+table.ref td code { font-family: var(--mono); font-size: .8125rem; }
+table.ref td:first-child { white-space: nowrap; }
+
+footer { border-top: 1px solid var(--border); margin-top: 1rem; }
+footer .inner { max-width: 74rem; margin: 0 auto; padding: 1.5rem; color: var(--subtle); font-size: .8125rem; }
+
+/* ---------------------------------------------------------------------------
+   Gaya artikel — disalin apa adanya dari blok `.prose` di app/globals.css.
+   Inilah yang membuat pratinjau di bawah sama dengan hasil di situs.
+   --------------------------------------------------------------------------- */
+
+.prose { color: var(--foreground); font-size: 1.0625rem; line-height: 1.75; }
+.prose > * + * { margin-top: 1.25em; }
+.prose > :first-child { margin-top: 0; }
+.prose h2, .prose h3, .prose h4 { font-weight: 600; letter-spacing: -.01em; line-height: 1.3; }
+.prose h2 { margin-top: 2.25em; font-size: 1.375rem; }
+.prose h3 { margin-top: 1.75em; font-size: 1.125rem; }
+.prose p, .prose li { color: var(--subtle); }
+.prose strong { color: var(--foreground); font-weight: 600; }
+.prose a { color: var(--accent); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.prose a:hover { color: var(--accent-strong); }
+.prose ul, .prose ol { padding-left: 1.35em; }
+.prose ul { list-style: disc; }
+.prose ol { list-style: decimal; }
+.prose li + li { margin-top: .4em; }
+.prose li > ul, .prose li > ol { margin-top: .4em; }
+.prose code { font-family: var(--mono); font-size: .875em; background: var(--muted); border: 1px solid var(--border); border-radius: 5px; padding: .1em .35em; }
+.prose pre { background: var(--muted); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.25rem; overflow-x: auto; font-size: .85rem; line-height: 1.65; }
+.prose pre code { background: none; border: 0; border-radius: 0; padding: 0; font-size: inherit; }
+.prose blockquote { border-left: 2px solid var(--accent); padding-left: 1rem; color: var(--subtle); font-style: italic; }
+.prose hr { border: 0; border-top: 1px solid var(--border); }
+.prose table { width: 100%; border-collapse: collapse; font-size: .9rem; }
+.prose th, .prose td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+.prose th { background: var(--muted); font-weight: 600; }
+.prose img { border-radius: 12px; max-width: 100%; height: auto; }
+
+/* Pratinjau memakai ukuran asli artikel (1.0625rem), tanpa penyesuaian —
+   supaya yang terlihat di sini benar-benar sama dengan hasil di situs.
+   Satu-satunya perubahan: jarak atas judul pertama dimatikan agar tidak
+   menyisakan ruang kosong di dalam kotak. */
+.preview .prose > :first-child { margin-top: 0; }
+
+/* ---------- print ---------- */
+
+@media print {
+  nav.toc { display: none; }
+  .wrap { grid-template-columns: 1fr; max-width: none; padding: 0; }
+  body { font-size: 11pt; }
+  .pair, table.ref, .note { break-inside: avoid; }
+  section + section { break-top: auto; }
+  button.copy { display: none; }
+  a { color: inherit; }
+}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="inner">
+    <p class="brand">hopeless/labs</p>
+    <h1>Panduan format Markdown</h1>
+    <p class="lede">
+      Referensi untuk menulis artikel di panel <code class="i">/admin</code>. Setiap contoh
+      di bawah menunjukkan <strong>apa yang diketik</strong> dan <strong>hasilnya di situs</strong> —
+      pratinjaunya memakai gaya artikel yang sama persis dengan halaman blog.
+    </p>
+  </div>
+</header>
+
+<div class="wrap">
+
+<nav class="toc" aria-label="Daftar isi">
+  <p>Mulai</p>
+  <a href="#tiga-aturan">Tiga aturan dasar</a>
+  <a href="#kolom">Kolom artikel</a>
+
+  <p>Markdown</p>
+  <a href="#judul">Judul &amp; sub-judul</a>
+  <a href="#teks">Tebal, miring, coret</a>
+  <a href="#daftar">Daftar</a>
+  <a href="#tautan">Tautan</a>
+  <a href="#gambar">Gambar</a>
+  <a href="#kode">Kode</a>
+  <a href="#tabel">Tabel</a>
+  <a href="#kutipan">Kutipan</a>
+  <a href="#lainnya">Garis &amp; baris baru</a>
+
+  <p>Kerja nyata</p>
+  <a href="#jebakan">Jebakan umum</a>
+  <a href="#resep">Resep siap pakai</a>
+  <a href="#cek">Cek sebelum publish</a>
+</nav>
+
+<main>
+
+<!-- ===================================================================== -->
+<section id="tiga-aturan">
+  <h2>Tiga aturan dasar</h2>
+  <p>Kalau cuma ingat tiga hal, ingat ini. Sembilan dari sepuluh artikel yang berantakan gara-gara salah di sini.</p>
+
+  <div class="note"><strong>1. Beri satu baris kosong di antara blok.</strong> Markdown mengenali blok baru dari baris kosong. Tanpa itu, judul dan paragraf bisa menyatu jadi satu paragraf.</div>
+  <div class="note"><strong>2. Pakai <code class="i">##</code>, jangan <code class="i">#</code>.</strong> Judul artikel sudah memakai level tertinggi. Tanda <code class="i">#</code> di badan artikel tidak digayakan sama sekali — hasilnya jadi teks biasa, bukan judul.</div>
+  <div class="note"><strong>3. Baris baru biasa tidak dihitung.</strong> Menekan Enter sekali tidak membuat paragraf baru. Butuh satu baris kosong, atau dua spasi di akhir baris kalau memang mau pindah baris tanpa paragraf baru.</div>
+</section>
+
+<!-- ===================================================================== -->
+<section id="kolom">
+  <h2>Kolom artikel</h2>
+  <p>Selain badan artikel, ada beberapa kolom di panel yang menentukan tampilannya di situs.</p>
+
+  <table class="ref">
+    <thead>
+      <tr><th>Kolom</th><th>Isi</th><th>Muncul di</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Title</strong></td><td>Judul artikel. Boleh bahasa Indonesia atau Inggris.</td><td>Halaman artikel, kartu di <code>/blog</code>, judul tab, kartu media sosial</td></tr>
+      <tr><td><strong>Slug</strong></td><td>Alamat URL. Terisi otomatis dari judul: huruf kecil, spasi jadi tanda hubung.</td><td><code>/blog/&lt;slug&gt;</code></td></tr>
+      <tr><td><strong>Summary</strong></td><td>1–2 kalimat. Ini yang dibaca orang di daftar artikel dan di hasil Google.</td><td>Kartu <code>/blog</code>, deskripsi pencarian, RSS</td></tr>
+      <tr><td><strong>Body</strong></td><td>Isi artikel, format Markdown. Bagian terbesar dokumen ini.</td><td>Halaman artikel</td></tr>
+      <tr><td><strong>Author</strong></td><td>Nama penulis. Bawaannya <code>Hopeless Labs</code>.</td><td>Kartu dan halaman artikel</td></tr>
+      <tr><td><strong>Tags</strong></td><td>Kata kunci, dipisah koma: <code>rsl, tutorial</code>. Cukup 2–3.</td><td>Chip kecil di kartu dan artikel</td></tr>
+      <tr><td><strong>Cover</strong></td><td>Gambar sampul. Di-upload dari panel (PNG/JPEG/WebP).</td><td>Kartu <code>/blog</code> dan bagian atas artikel</td></tr>
+      <tr><td><strong>Status</strong></td><td><code>draft</code> = tersimpan tapi tidak tampil. <code>published</code> = tampil setelah build berikutnya.</td><td>Menentukan artikel muncul atau tidak</td></tr>
+    </tbody>
+  </table>
+
+  <div class="note"><strong>Gambar di dalam badan artikel beda dengan Cover.</strong> Cover di-upload lewat panel. Gambar di tengah artikel harus berupa <em>URL</em> gambar yang sudah online — lihat bagian <a href="#gambar">Gambar</a>.</div>
+</section>
+
+<!-- ===================================================================== -->
+<section id="judul">
+  <h2>Judul &amp; sub-judul</h2>
+  <p>Gunakan <code class="i">##</code> untuk sub-judul dan <code class="i">###</code> untuk tingkat di bawahnya. Jangan pakai <code class="i">#</code>.</p>
+
+  <div class="pair">
+    <div class="col">
+      <div class="head"><span>Tulis</span><button class="copy" data-copy="## Langkah pertama">salin</button></div>
+      <pre>## Langkah pertama</pre>
+    </div>
+    <div class="col">
+      <div class="head"><span>Hasilnya</span></div>
+      <div class="preview"><div class="prose"><h2>Langkah pertama</h2></div></div>
+    </div>
+  </div>
+
+  <div class="pair">
+    <div class="col">
+      <div class="head"><span>Tulis</span><button class="copy" data-copy="### Kalau perlu lebih dalam">salin</button></div>
+      <pre>### Kalau perlu lebih dalam</pre>
+    </div>
+    <div class="col">
+      <div class="head"><span>Hasilnya</span></div>
+      <div class="preview"><div class="prose"><h3>Kalau perlu lebih dalam</h3></div></div>
+    </div>
+  </div>
+
+  <div class="note bad"><strong>Jangan pakai <code class="i">#</code>.</strong> Di halaman artikel, <code class="i">#</code> tampil sebagai teks biasa — ukurannya sama dengan paragraf dan tidak tebal. Judul artikelnya sendiri sudah memakai level itu, jadi <code class="i">#</code> di badan artikel cuma bikin bingung.</div>
+
+  <div class="note"><strong>Maksimal tiga tingkat.</strong> <code class="i">##</code> → <code class="i">###</code> → <code class="i">####</code>. Lebih dari itu artikelnya susah diikuti; pecah jadi beberapa artikel atau pakai daftar.</div>
+</section>
+
+<!-- ===================================================================== -->
+<section id="teks">
+  <h2>Tebal, miring, coret</h2>
+  <p>Untuk menekankan kata. Jangan berlebihan — satu penekanan per paragraf sudah cukup.</p>
+
+  <div class="pair">
+    <div class="col">
+      <div class="head"><span>Tulis</span><button class="copy" data-copy="**tebal** dan *miring* dan ~~coret~~">salin</button></div>
+      <pre>**tebal** dan *miring* dan ~~coret~~</pre>
+    </div>
+    <div class="col">
+      <div class="head"><span>Hasilnya</span></div>
+      <div class="preview"><div class="prose"><p><strong>tebal</strong> dan <em>miring</em> dan <del>coret</del></p></div></div>
+    </div>
+  </div>
+
+  <div class="note"><strong>Perhatikan spasinya.</strong> <code class="i">** tebal **</code> (ada spasi di dalam tanda bintang) tidak jadi tebal — tampil sebagai tanda bintang biasa.</div>
+</section>
+
+<!-- ===================================================================== -->
+<section id="daftar">
+  <h2>Daftar</h2>
+  <p>Pakai tanda hubung untuk daftar tanpa urutan, angka untuk yang berurutan. Beri satu baris kosong sebelum daftar dimulai.</p>
+
+  <div class="pair">
+    <div class="col">
+      <div class="head"><span>Tulis</span><button class="copy" data-copy="- satu&#10;- dua">salin</button></div>
+      <pre>- satu
+- dua</pre>
+    </div>
+    <div class="col">
+      <div class="head"><span>Hasilnya</span></div>
+      <div class="preview"><div class="prose"><ul><li>satu</li><li>dua</li></ul></div></div>
+    </div>
+  </div>
+
+  <div class="pair">
+    <div class="col">
+      <div class="head"><span>Tulis</span><button class="copy" data-copy="1. langkah satu&#10;2. langkah dua">salin</button></div>
+      <pre>1. langkah satu
+2. langkah dua</pre>
+    </div>
+    <div class="col">
+      <div class="head"><span>Hasilnya</span></div>
+      <div class="preview"><div class="prose"><ol><li>langkah satu</li><li>langkah dua</li></ol></div></div>
+    </div>
+  </div>
+
+  <h3>Daftar bertingkat</h3>
+  <p>Beri <strong>dua spasi</strong> di depan baris yang mau masuk ke dalam item di atasnya.</p>
+
+  <div class="pair">
+    <div class="col">
+      <div class="head"><span>Tulis</span><button class="copy" data-copy="- satu&#10;  - satu titik a&#10;  - satu titik b&#10;- dua">salin</button></div>
+      <pre>- satu
+  - satu titik a
+  - satu titik b
+- dua</pre>
+    </div>
+    <div class="col">
+      <div class="head"><span>Hasilnya</span></div>
+      <div class="preview"><div class="prose"><ul><li>satu<ul><li>satu titik a</li><li>satu titik b</li></ul></li><li>dua</li></ul></div></div>
+    </div>
+  </div>
+
+  <h3>Daftar centang</h3>
+  <div class="pair">
+    <div class="col">
+      <div class="head"><span>Tulis</span><button class="copy" data-copy="- [ ] belum selesai&#10;- [x] sudah selesai">salin</button></div>
+      <pre>- [ ] belum selesai
+- [x] sudah selesai</pre>
+    </div>
+    <div class="col">
+      <div class="head"><span>Hasilnya</span></div>
+      <div class="preview"><div class="prose"><ul><li><input type="checkbox" disabled> belum selesai</li><li><input type="checkbox" checked disabled> sudah selesai</li></ul></div></div>
+    </div>
+  </div>
+
+  <div class="note"><strong>Daftar centang tampil dengan bulatan.</strong> Situs ini belum menghilangkan bulatan untuk daftar centang, jadi hasilnya kotak centang <em>plus</em> bulatan kecil. Kalau mau rapi, pakai daftar biasa.</div>
+</section>
+
+<!-- ===================================================================== -->
+<section id="tautan">
+  <h2>Tautan</h2>
+  <p>Format: teks di dalam kurung siku, alamat di dalam kurung biasa. Alamatnya harus lengkap dengan <code class="i">https://</code>.</p>
+
+  <div class="pair">
+    <div class="col">
+      <div class="head"><span>Tulis</span><button class="copy" data-copy="[dokumentasi Ruso](https://docs.ruso.hopeless-labs.com)">salin</button></div>
+      <pre>[dokumentasi Ruso](https://docs.ruso.hopeless-labs.com)</pre>
+    </div>
+    <div class="col">
+      <div class="head"><span>Hasilnya</span></div>
+      <div class="preview"><div class="prose"><p><a href="https://docs.ruso.hopeless-labs.com">dokumentasi Ruso</a></p></div></div>
+    </div>
+  </div>
+
+  <div class="note ok"><strong>URL mentah otomatis jadi tautan.</strong> Menulis <code class="i">https://contoh.com</code> tanpa tanda kurung tetap bisa diklik, tapi lebih rapi kalau diberi teks sendiri.</div>
+
+  <div class="note"><strong>Tautan internal.</strong> Untuk menunjuk artikel lain di situs ini, tulis path-nya: <code class="i">[artikel lain](/blog/inside-the-bytecode)</code>.</div>
+</section>
+
+<!-- ===================================================================== -->
+<section id="gambar">
+  <h2>Gambar</h2>
+  <p>Ada dua jalur, dan ini yang paling sering bikin bingung:</p>
+
+  <table class="ref">
+    <thead><tr><th>Jenis</th><th>Cara</th><th>Catatan</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><strong>Cover</strong></td>
+        <td>Upload di panel, kolom <code>Cover image</code></td>
+        <td>Tampil di kartu <code>/blog</code> dan di atas artikel. Bisa dipotong otomatis.</td>
+      </tr>
+      <tr>
+        <td><strong>Gambar di badan artikel</strong></td>
+        <td>Tulis URL gambar di badan artikel</td>
+        <td>Belum ada upload gambar langsung di editor. Gambar harus sudah online (misal di Supabase Storage, GitHub, atau imgur).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Format gambar di badan artikel</h3>
+  <p>Tanda seru, keterangan di kurung siku, URL di kurung biasa. Tidak boleh ada spasi antara <code class="i">!</code> dan <code class="i">[</code>.</p>
+
+  <div class="pair">
+    <div class="col">
+      <div class="head"><span>Tulis</span><button class="copy" data-copy="![Diagram alur scan](https://contoh.com/diagram.png)">salin</button></div>
+      <pre>![Diagram alur scan](https://contoh.com/diagram.png)</pre>
+    </div>
+    <div class="col">
+      <div class="head"><span>Hasilnya</span></div>
+      <div class="preview">
+        <div class="prose">
+          <img src="data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='320' height='120'%3E%3Crect width='320' height='120' fill='%2318181b' stroke='%2327272a' stroke-width='2'/%3E%3Ctext x='160' y='64' fill='%23a1a1aa' font-family='monospace' font-size='13' text-anchor='middle'%3Egambar contoh%3C/text%3E%3C/svg%3E" alt="Diagram alur scan">
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note bad"><strong>Keterangan gambar wajib diisi.</strong> Teks di dalam <code class="i">[ ]</code> dibaca screen reader dan mesin pencari. Menulis <code class="i">![](url)</code> bikin gambar tanpa keterangan — kurang baik untuk aksesibilitas.</div>
+
+  <div class="note"><strong>Ukuran.</strong> Gambar otomatis menyesuaikan lebar artikel dan diberi sudut membulat. Yang perlu dijaga hanya ukuran file: di bawah ~300 KB supaya artikel tetap ringan.</div>
+</section>
+
+<!-- ===================================================================== -->
+<section id="kode">
+  <h2>Kode</h2>
+
+  <h3>Kode singkat di dalam kalimat</h3>
+  <p>Pakai satu backtick di kiri dan kanan.</p>
+
+  <div class="pair">
+    <div class="col">
+      <div class="head"><span>Tulis</span><button class="copy" data-copy="Jalankan `npm run build` lalu cek `out/`.">salin</button></div>
+      <pre>Jalankan `npm run build` lalu cek `out/`.</pre>
+    </div>
+    <div class="col">
+      <div class="head"><span>Hasilnya</span></div>
+      <div class="preview"><div class="prose"><p>Jalankan <code>npm run build</code> lalu cek <code>out/</code>.</p></div></div>
+    </div>
+  </div>
+
+  <h3>Blok kode</h3>
+  <p>Pakai tiga backtick di baris sendiri, dan tiga backtick lagi untuk menutup. Nama bahasa ditulis setelah backtick pembuka.</p>
+
+  <div class="pair">
+    <div class="col">
+      <div class="head"><span>Tulis</span><button class="copy" data-copy="```bash&#10;npm run build&#10;```">salin</button></div>
+      <pre>```bash
+npm run build
+```</pre>
+    </div>
+    <div class="col">
+      <div class="head"><span>Hasilnya</span></div>
+      <div class="preview"><div class="prose"><pre><code>npm run build</code></pre></div></div>
+    </div>
+  </div>
+
+  <div class="note"><strong>Nama bahasa itu opsional dan belum memberi warna.</strong> Situs ini belum memakai pewarnaan sintaks, jadi <code class="i">bash</code>, <code class="i">js</code>, dan tanpa nama tampil sama: monospace di dalam kotak. Tulis saja nama bahasanya untuk kejelasan pembaca.</div>
+
+  <div class="note"><strong>Kalau isi kodenya memuat tiga backtick</strong>, pakai empat backtick sebagai pembungkus supaya tidak dianggap penutup.</div>
+</section>
+
+<!-- ===================================================================== -->
+<section id="tabel">
+  <h2>Tabel</h2>
+  <p>Bagian yang paling sering salah. Ada tiga bagian wajib: baris judul, baris pemisah, lalu isi.</p>
+
+  <div class="pair">
+    <div class="col">
+      <div class="head"><span>Tulis</span><button class="copy" data-copy="| Perintah | Fungsi |&#10;| --- | --- |&#10;| `ruso compile` | Mengubah skrip jadi bytecode |&#10;| `ruso run` | Menjalankan skan |">salin</button></div>
+      <pre>| Perintah | Fungsi |
+| --- | --- |
+| `ruso compile` | Mengubah skrip jadi bytecode |
+| `ruso run` | Menjalankan skan |</pre>
+    </div>
+    <div class="col">
+      <div class="head"><span>Hasilnya</span></div>
+      <div class="preview">
+        <div class="prose">
+          <table>
+            <thead><tr><th>Perintah</th><th>Fungsi</th></tr></thead>
+            <tbody>
+              <tr><td><code>ruso compile</code></td><td>Mengubah skrip jadi bytecode</td></tr>
+              <tr><td><code>ruso run</code></td><td>Menjalankan skan</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Aturannya</h3>
+  <table class="ref">
+    <thead><tr><th>Bagian</th><th>Wajib?</th><th>Contoh</th></tr></thead>
+    <tbody>
+      <tr><td>Baris judul</td><td>Ya</td><td><code>| Perintah | Fungsi |</code></td></tr>
+      <tr><td>Baris pemisah</td><td>Ya</td><td><code>| --- | --- |</code></td></tr>
+      <tr><td>Baris isi</td><td>Minimal satu</td><td><code>| ruso run | Menjalankan skan |</code></td></tr>
+      <tr><td>Garis tepi <code>|</code></td><td>Tidak wajib</td><td>Boleh ditulis atau tidak, hasilnya sama</td></tr>
+      <tr><td>Baris kosong di antara baris tabel</td><td>Tidak boleh</td><td>Memutus tabel jadi dua</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Rata kolom</h3>
+  <p>Tambahkan titik dua di baris pemisah.</p>
+
+  <div class="pair">
+    <div class="col">
+      <div class="head"><span>Tulis</span><button class="copy" data-copy="| Kiri | Tengah | Kanan |&#10;| :-- | :-: | --: |&#10;| a | b | c |">salin</button></div>
+      <pre>| Kiri | Tengah | Kanan |
+| :-- | :-: | --: |
+| a | b | c |</pre>
+    </div>
+    <div class="col">
+      <div class="head"><span>Hasilnya</span></div>
+      <div class="preview">
+        <div class="prose">
+          <table>
+            <thead><tr><th style="text-align:left">Kiri</th><th style="text-align:center">Tengah</th><th style="text-align:right">Kanan</th></tr></thead>
+            <tbody><tr><td style="text-align:left">a</td><td style="text-align:center">b</td><td style="text-align:right">c</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note bad"><strong>Simbol <code class="i">|</code> di dalam sel.</strong> Kalau isi selnya mengandung garis tegak (misalnya perintah shell dengan pipe), tulis dengan backslash: <code class="i">\|</code>. Kalau tidak, kolomnya bergeser.</div>
+
+  <div class="note"><strong>Tabel tidak bisa memuat blok kode, daftar, atau gambar.</strong> Isi sel hanya teks, tautan, dan kode singkat dengan backtick. Butuh daftar? Pakai sub-judul dan daftar biasa.</div>
+
+  <div class="note"><strong>Tabel lebar di ponsel.</strong> Tabel yang kolomnya banyak akan melebar dan bisa di-scroll ke samping. Kalau memungkinkan, batasi jadi 3 kolom.</div>
+</section>
+
+<!-- ===================================================================== -->
+<section id="kutipan">
+  <h2>Kutipan</h2>
+  <p>Untuk menonjolkan satu pernyataan: catatan peringatan, kutipan narasumber, atau ringkasan singkat.</p>
+
+  <div class="pair">
+    <div class="col">
+      <div class="head"><span>Tulis</span><button class="copy" data-copy="> Pemeriksaan ini hanya mengirim satu paket PING, tidak menulis apa pun ke target.">salin</button></div>
+      <pre>> Pemeriksaan ini hanya mengirim satu
+> paket PING, tidak menulis apa pun ke
+> target.</pre>
+    </div>
+    <div class="col">
+      <div class="head"><span>Hasilnya</span></div>
+      <div class="preview"><div class="prose"><blockquote><p>Pemeriksaan ini hanya mengirim satu paket PING, tidak menulis apa pun ke target.</p></blockquote></div></div>
+    </div>
+  </div>
+
+  <div class="note"><strong>Tanda <code class="i">&gt;</code> di setiap baris.</strong> Untuk kutipan lebih dari satu baris, tiap baris diawali <code class="i">&gt;</code>. Kalau cuma baris pertama, sisanya keluar dari kotak kutipan.</div>
+</section>
+
+<!-- ===================================================================== -->
+<section id="lainnya">
+  <h2>Garis pemisah &amp; baris baru</h2>
+
+  <h3>Garis pemisah</h3>
+  <p>Tiga tanda hubung di baris sendiri, dengan baris kosong di atas dan bawahnya.</p>
+
+  <div class="pair">
+    <div class="col">
+      <div class="head"><span>Tulis</span><button class="copy" data-copy="---">salin</button></div>
+      <pre>---</pre>
+    </div>
+    <div class="col">
+      <div class="head"><span>Hasilnya</span></div>
+      <div class="preview"><div class="prose"><hr></div></div>
+    </div>
+  </div>
+
+  <div class="note bad"><strong>Hati-hati:</strong> <code class="i">---</code> yang menempel langsung di bawah baris teks (tanpa baris kosong) dianggap <em>judul</em>, bukan garis. Selalu beri baris kosong.</div>
+
+  <h3>Pindah baris tanpa paragraf baru</h3>
+  <p>Akhiri baris dengan <strong>dua spasi</strong>, lalu tekan Enter.</p>
+
+  <div class="pair">
+    <div class="col">
+      <div class="head"><span>Tulis</span><button class="copy" data-copy="baris pertama··&#10;baris kedua (titik = spasi)">salin</button></div>
+      <pre>baris pertama␣␣
+baris kedua</pre>
+    </div>
+    <div class="col">
+      <div class="head"><span>Hasilnya</span></div>
+      <div class="preview"><div class="prose"><p>baris pertama<br>baris kedua</p></div></div>
+    </div>
+  </div>
+
+  <div class="note">Kalau tidak butuh pindah baris, biarkan saja — biarkan teks mengalir sendiri. Paragraf baru cukup dengan satu baris kosong.</div>
+</section>
+
+<!-- ===================================================================== -->
+<section id="jebakan">
+  <h2>Jebakan umum</h2>
+  <p>Daftar masalah yang benar-benar muncul saat menulis, dan cara memperbaikinya.</p>
+
+  <table class="ref">
+    <thead><tr><th>Gejala</th><th>Penyebab</th><th>Perbaikan</th></tr></thead>
+    <tbody>
+      <tr>
+        <td>Judul tidak terlihat sebagai judul</td>
+        <td>Memakai <code>#</code></td>
+        <td>Ganti jadi <code>##</code></td>
+      </tr>
+      <tr>
+        <td>Semua teks menempel jadi satu paragraf</td>
+        <td>Tidak ada baris kosong antar blok</td>
+        <td>Beri satu baris kosong di antara blok</td>
+      </tr>
+      <tr>
+        <td>Tabel tampil sebagai teks dengan garis tegak</td>
+        <td>Baris pemisah <code>| --- |</code> tidak ada</td>
+        <td>Tambahkan baris pemisah di bawah baris judul</td>
+      </tr>
+      <tr>
+        <td>Kolom tabel bergeser</td>
+        <td>Ada <code>|</code> di dalam isi sel</td>
+        <td>Tulis <code>\|</code></td>
+      </tr>
+      <tr>
+        <td>Tanda bintang ikut tampil</td>
+        <td>Ada spasi di dalam <code>** **</code></td>
+        <td>Rapatkan: <code>**tebal**</code></td>
+      </tr>
+      <tr>
+        <td>Gambar tidak muncul, cuma kotak rusak</td>
+        <td>URL bukan alamat gambar langsung, atau http</td>
+        <td>Pakai URL gambar utuh berawalan <code>https://</code></td>
+      </tr>
+      <tr>
+        <td>Gambar tampil kecil / dipotong</td>
+        <td>Itu gambar <em>Cover</em>, dipotong untuk kartu</td>
+        <td>Untuk isi artikel, pakai gambar inline</td>
+      </tr>
+      <tr>
+        <td>Daftar centang ada bulatannya</td>
+        <td>Gaya situs belum menghilangkannya</td>
+        <td>Pakai daftar biasa kalau ingin rapi</td>
+      </tr>
+      <tr>
+        <td>Garis <code>---</code> jadi judul besar</td>
+        <td>Menempel langsung di bawah teks</td>
+        <td>Beri baris kosong sebelum dan sesudahnya</td>
+      </tr>
+      <tr>
+        <td>Kutipan cuma baris pertama</td>
+        <td>Baris berikutnya tidak diawali <code>&gt;</code></td>
+        <td>Awali setiap baris kutipan dengan <code>&gt;</code></td>
+      </tr>
+      <tr>
+        <td>Sudah Save tapi artikel tidak ada di situs</td>
+        <td>Status masih draft, atau situs belum di-build ulang</td>
+        <td>Set <code>published</code>, lalu minta build ulang</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="note"><strong>HTML mentah ikut jalan.</strong> Menulis <code class="i">&lt;div&gt;</code> atau <code class="i">&lt;span&gt;</code> di badan artikel akan diteruskan apa adanya ke halaman. Jangan pakai kecuali benar-benar paham — dan jangan pernah menempel HTML dari sumber yang tidak dipercaya.</div>
+</section>
+
+<!-- ===================================================================== -->
+<section id="resep">
+  <h2>Resep siap pakai</h2>
+  <p>Salin, ganti isinya, selesai.</p>
+
+  <h3>Artikel tutorial</h3>
+  <div class="pair">
+    <div class="col">
+      <div class="head"><span>Tulis</span><button class="copy" data-copy="## Yang perlu disiapkan&#10;&#10;- CLI Ruso terpasang&#10;- Satu host lab yang boleh dipindai&#10;&#10;## Langkah pertama&#10;&#10;Jalankan `ruso --version` untuk memastikan pemasangan berhasil.&#10;&#10;```bash&#10;ruso compile headers.rsl -o headers.rbc&#10;```&#10;&#10;> Perintah di atas tidak menyentuh jaringan, hanya memvalidasi skrip.&#10;&#10;## Hasil yang diharapkan&#10;&#10;| Keluaran | Arti |&#10;| --- | --- |&#10;| `ok` | Skrip valid |&#10;| `error` | Ada verb atau placeholder yang salah |">salin</button></div>
+      <pre>## Yang perlu disiapkan
+
+- CLI Ruso terpasang
+- Satu host lab yang boleh dipindai
+
+## Langkah pertama
+
+Jalankan `ruso --version` untuk memastikan
+pemasangan berhasil.
+
+```bash
+ruso compile headers.rsl -o headers.rbc
+```
+
+> Perintah di atas tidak menyentuh jaringan,
+> hanya memvalidasi skrip.
+
+## Hasil yang diharapkan
+
+| Keluaran | Arti |
+| --- | --- |
+| `ok` | Skrip valid |
+| `error` | Ada verb atau placeholder yang salah |</pre>
+    </div>
+    <div class="col">
+      <div class="head"><span>Hasilnya</span></div>
+      <div class="preview">
+        <div class="prose">
+          <h2>Yang perlu disiapkan</h2>
+          <ul><li>CLI Ruso terpasang</li><li>Satu host lab yang boleh dipindai</li></ul>
+          <h2>Langkah pertama</h2>
+          <p>Jalankan <code>ruso --version</code> untuk memastikan pemasangan berhasil.</p>
+          <pre><code>ruso compile headers.rsl -o headers.rbc</code></pre>
+          <blockquote><p>Perintah di atas tidak menyentuh jaringan, hanya memvalidasi skrip.</p></blockquote>
+          <h2>Hasil yang diharapkan</h2>
+          <table>
+            <thead><tr><th>Keluaran</th><th>Arti</th></tr></thead>
+            <tbody>
+              <tr><td><code>ok</code></td><td>Skrip valid</td></tr>
+              <tr><td><code>error</code></td><td>Ada verb atau placeholder yang salah</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Artikel pengumuman rilis</h3>
+  <div class="pair">
+    <div class="col">
+      <div class="head"><span>Tulis</span><button class="copy" data-copy="Rilis ini menutup dua celah di validator dan menambah satu verb baru.&#10;&#10;## Yang berubah&#10;&#10;- [x] `match` menerima daftar header&#10;- [x] Pesan error menyebut nomor baris&#10;- [ ] Verb `dns.lookup` (menyusul)&#10;&#10;## Cara memperbarui&#10;&#10;```bash&#10;ruso self-update&#10;```&#10;&#10;---&#10;&#10;Laporan bug lewat [issue tracker](https://github.com/Hopeless-Labs).">salin</button></div>
+      <pre>Rilis ini menutup dua celah di validator dan
+menambah satu verb baru.
+
+## Yang berubah
+
+- [x] `match` menerima daftar header
+- [x] Pesan error menyebut nomor baris
+- [ ] Verb `dns.lookup` (menyusul)
+
+## Cara memperbarui
+
+```bash
+ruso self-update
+```
+
+---
+
+Laporan bug lewat [issue tracker](https://github.com/Hopeless-Labs).</pre>
+    </div>
+    <div class="col">
+      <div class="head"><span>Hasilnya</span></div>
+      <div class="preview">
+        <div class="prose">
+          <p>Rilis ini menutup dua celah di validator dan menambah satu verb baru.</p>
+          <h2>Yang berubah</h2>
+          <ul>
+            <li><input type="checkbox" checked disabled> <code>match</code> menerima daftar header</li>
+            <li><input type="checkbox" checked disabled> Pesan error menyebut nomor baris</li>
+            <li><input type="checkbox" disabled> Verb <code>dns.lookup</code> (menyusul)</li>
+          </ul>
+          <h2>Cara memperbarui</h2>
+          <pre><code>ruso self-update</code></pre>
+          <hr>
+          <p>Laporan bug lewat <a href="https://github.com/Hopeless-Labs">issue tracker</a>.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================================== -->
+<section id="cek">
+  <h2>Cek sebelum publish</h2>
+  <p>Empat puluh detik yang menyelamatkan artikel dari tampil berantakan.</p>
+
+  <table class="ref">
+    <thead><tr><th>#</th><th>Yang dicek</th><th>Kenapa</th></tr></thead>
+    <tbody>
+      <tr><td>1</td><td>Buka <strong>Preview</strong> dan baca sampai bawah</td><td>Markdown yang salah kelihatan jelas di pratinjau, bukan di hasil akhir</td></tr>
+      <tr><td>2</td><td>Pastikan tiap sub-judul memakai <code>##</code>, bukan <code>#</code></td><td><code>#</code> tidak digayakan</td></tr>
+      <tr><td>3</td><td>Semua tabel punya baris pemisah <code>| --- |</code></td><td>Tanpa itu, tabel jadi teks biasa</td></tr>
+      <tr><td>4</td><td>Semua gambar ada keterangannya dan URL-nya <code>https</code></td><td>Tampilan dan aksesibilitas</td></tr>
+      <tr><td>5</td><td>Summary terisi 1–2 kalimat</td><td>Dipakai di daftar artikel dan hasil pencarian</td></tr>
+      <tr><td>6</td><td>Slug sudah benar dan belum dipakai artikel lain</td><td>Slug tidak bisa diubah seenaknya setelah terbit</td></tr>
+      <tr><td>7</td><td>Status di-set <code>published</code></td><td><code>draft</code> tidak akan muncul di situs</td></tr>
+      <tr><td>8</td><td>Minta build ulang setelah publish</td><td>Situs statis: artikel baru muncul setelah build berikutnya</td></tr>
+    </tbody>
+  </table>
+</section>
+
+</main>
+</div>
+
+<footer>
+  <div class="inner">
+    Dokumen ini berdiri sendiri — bisa dibuka tanpa server, tanpa internet.
+    Gaya pratinjaunya disalin dari <code class="i">app/globals.css</code> (blok <code class="i">:root</code> dan <code class="i">.prose</code>);
+    kalau palet atau gaya artikel situs berubah, salin ulang kedua blok itu.
+    Alur kerja lengkapnya ada di <code class="i">docs/publishing.md</code>.
+  </div>
+</footer>
+
+<script>
+// Tombol "salin" — fitur tambahan, halaman tetap berfungsi tanpa JavaScript.
+document.querySelectorAll("button.copy").forEach(function (button) {
+  button.addEventListener("click", async function () {
+    var text = button.getAttribute("data-copy") || "";
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (error) {
+      // Fallback untuk file:// atau browser yang memblokir clipboard.
+      var area = document.createElement("textarea");
+      area.value = text;
+      area.setAttribute("readonly", "");
+      area.style.position = "fixed";
+      area.style.opacity = "0";
+      document.body.appendChild(area);
+      area.select();
+      try { document.execCommand("copy"); } catch (ignored) {}
+      document.body.removeChild(area);
+    }
+    var original = button.textContent;
+    button.textContent = "tersalin";
+    setTimeout(function () { button.textContent = original; }, 1400);
+  });
+});
+</script>
+
+</body>
+</html>

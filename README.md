@@ -34,6 +34,10 @@ of HTML/CSS/JS that any static host or CDN can serve.
 - `content/blog/` — optional Markdown seed for `npm run db:import`; the site does
   not read it at build time.
 - `docs/publishing.md` — writer-facing guide to the admin panel (Indonesian).
+- `docs/markdown-cheatsheet.html` — standalone Markdown reference for writers:
+  every construct shown as syntax next to its rendered result. No server, no
+  internet, opens straight from disk. `scripts/check-markdown.mjs` prints what
+  the renderer actually emits, so the sheet can be re-verified.
 - `lib/site.ts` — single source of truth for site constants, nav, and the
   product catalogue.
 - `lib/blog.ts` — merges published rows from the database with any Markdown
