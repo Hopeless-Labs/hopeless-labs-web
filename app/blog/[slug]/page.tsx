@@ -9,13 +9,14 @@ type PageProps = { params: Promise<{ slug: string }> };
 
 // Static export needs every post known at build time. A slug that is not in
 // this list renders the 404 page.
-export function generateStaticParams() {
-  return getAllPosts().map((post) => ({ slug: post.slug }));
+export async function generateStaticParams() {
+  const posts = await getAllPosts();
+  return posts.map((post) => ({ slug: post.slug }));
 }
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
-  const post = getPost(slug);
+  const post = await getPost(slug);
   if (!post) return { title: "Post not found" };
 
   return {
@@ -36,10 +37,10 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function BlogPostPage({ params }: PageProps) {
   const { slug } = await params;
-  const post = getPost(slug);
+  const post = await getPost(slug);
   if (!post) notFound();
 
-  const posts = getAllPosts();
+  const posts = await getAllPosts();
   const index = posts.findIndex((entry) => entry.slug === post.slug);
   const newer = index > 0 ? posts[index - 1] : undefined;
   const older = index >= 0 && index < posts.length - 1 ? posts[index + 1] : undefined;
@@ -76,7 +77,16 @@ export default async function BlogPostPage({ params }: PageProps) {
         )}
       </header>
 
-      {/* Markdown is authored in this repository, so the HTML is trusted. */}
+      {post.cover && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={post.cover}
+          alt=""
+          className="mt-10 w-full rounded-xl border border-border object-cover"
+        />
+      )}
+
+      {/* Markdown is authored by site staff, so the HTML is trusted. */}
       <div
         className="prose mt-10"
         dangerouslySetInnerHTML={{ __html: post.html }}

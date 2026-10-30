@@ -8,7 +8,7 @@ export const dynamic = "force-static";
 
 // Generated to `out/sitemap.xml` at build time (static export). Blog posts are
 // appended from the content directory so publishing one updates the sitemap.
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
   const routes = ["", "/products", "/blog", "/team", "/about"];
   const pages: MetadataRoute.Sitemap = routes.map((path) => ({
@@ -18,7 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     priority: path === "" ? 1 : 0.8,
   }));
 
-  const posts: MetadataRoute.Sitemap = getAllPosts().map((post) => ({
+  const posts: MetadataRoute.Sitemap = (await getAllPosts()).map((post) => ({
     url: `${SITE.url}/blog/${post.slug}`,
     lastModified: new Date(`${post.date}T00:00:00Z`),
     changeFrequency: "yearly",

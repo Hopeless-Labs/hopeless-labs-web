@@ -3,9 +3,16 @@ import path from "node:path";
 
 import { marked } from "marked";
 
-// Blog content lives as Markdown files under `content/blog`. Everything here
-// runs at build time only (Server Components / static export), so reading the
-// filesystem is safe and the deployed site stays fully static.
+import { getSupabaseAdmin } from "./supabase";
+
+// Blog content comes from two places:
+//   content/blog/*.md  — posts committed with the site (reading filesystem is
+//                        safe because everything below runs at build time).
+//   public.posts       — posts published from /admin.
+// Both are merged here; a database post wins when a slug exists in both.
+//
+// This only runs during `next build` (static export). If the Supabase env is
+// missing the database halves return empty and the Markdown posts still build.
 
 const CONTENT_DIR = path.join(process.cwd(), "content", "blog");
 const WORDS_PER_MINUTE = 200;
@@ -19,6 +26,8 @@ export type PostMeta = {
   author: string;
   tags: string[];
   readingMinutes: number;
+  /** Public URL of the cover image, when the post has one. */
+  cover?: string;
 };
 
 export type Post = PostMeta & { html: string };
@@ -77,6 +86,10 @@ function wordCount(markdown: string): number {
   return text ? text.split(" ").length : 0;
 }
 
+function readingMinutes(markdown: string): number {
+  return Math.max(1, Math.round(wordCount(markdown) / WORDS_PER_MINUTE));
+}
+
 function toMeta(slug: string, data: Frontmatter, markdown: string): PostMeta {
   return {
     slug,
@@ -85,8 +98,13 @@ function toMeta(slug: string, data: Frontmatter, markdown: string): PostMeta {
     date: stringField(data, "date"),
     author: stringField(data, "author") || "Hopeless Labs",
     tags: tagsField(data),
-    readingMinutes: Math.max(1, Math.round(wordCount(markdown) / WORDS_PER_MINUTE)),
+    readingMinutes: readingMinutes(markdown),
   };
+}
+
+function toHtml(markdown: string): string {
+  // Content is authored by site staff, so the HTML is trusted.
+  return marked.parse(markdown, { gfm: true, async: false }) as string;
 }
 
 function readPostFile(slug: string): { meta: PostMeta; markdown: string } | null {
@@ -98,34 +116,100 @@ function readPostFile(slug: string): { meta: PostMeta; markdown: string } | null
   return { meta: toMeta(slug, data, body), markdown: body };
 }
 
-/** All published posts, newest first. */
-export function getAllPosts(): PostMeta[] {
+function filePosts(): PostMeta[] {
   if (!fs.existsSync(CONTENT_DIR)) return [];
   return fs
     .readdirSync(CONTENT_DIR)
     .filter((file) => file.endsWith(".md"))
     .map((file) => readPostFile(file.slice(0, -3)))
     .filter((entry): entry is { meta: PostMeta; markdown: string } => entry !== null)
-    .map((entry) => entry.meta)
-    .sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : a.title.localeCompare(b.title)));
+    .map((entry) => entry.meta);
 }
 
-/** A single post with its rendered HTML, or null when the slug is unknown. */
-export function getPost(slug: string): Post | null {
+function filePost(slug: string): Post | null {
   const entry = readPostFile(slug);
   if (!entry) return null;
-  // Content is authored in this repository, so the HTML is trusted.
-  const html = marked.parse(entry.markdown, { gfm: true, async: false }) as string;
-  return { ...entry.meta, html };
+  return { ...entry.meta, html: toHtml(entry.markdown) };
 }
 
-export function formatDate(iso: string): string {
-  const date = new Date(`${iso}T00:00:00Z`);
-  if (Number.isNaN(date.getTime())) return iso;
-  return date.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    timeZone: "UTC",
-  });
+// ---------------------------------------------------------------------------
+// Published posts from Postgres
+// ---------------------------------------------------------------------------
+
+type DbPost = {
+  slug: string;
+  title: string;
+  summary: string;
+  body: string;
+  author: string;
+  tags: string[] | null;
+  cover_image: string | null;
+  published_at: string | null;
+  updated_at: string;
+};
+
+const DB_COLUMNS = "slug,title,summary,body,author,tags,cover_image,published_at,updated_at";
+
+function dbMeta(row: DbPost): PostMeta {
+  return {
+    slug: row.slug,
+    title: row.title,
+    summary: row.summary,
+    date: (row.published_at ?? row.updated_at).slice(0, 10),
+    author: row.author,
+    tags: row.tags ?? [],
+    readingMinutes: readingMinutes(row.body),
+    cover: row.cover_image ?? undefined,
+  };
 }
+
+async function dbPosts(): Promise<DbPost[]> {
+  try {
+    const { data, error } = await getSupabaseAdmin()
+      .from("posts")
+      .select(DB_COLUMNS)
+      .eq("status", "published")
+      .order("published_at", { ascending: false });
+    return error ? [] : ((data ?? []) as DbPost[]);
+  } catch {
+    return [];
+  }
+}
+
+async function dbPost(slug: string): Promise<DbPost | null> {
+  try {
+    const { data, error } = await getSupabaseAdmin()
+      .from("posts")
+      .select(DB_COLUMNS)
+      .eq("slug", slug)
+      .eq("status", "published")
+      .maybeSingle();
+    return error ? null : ((data as DbPost | null) ?? null);
+  } catch {
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
+
+function newestFirst(a: PostMeta, b: PostMeta): number {
+  return a.date < b.date ? 1 : a.date > b.date ? -1 : a.title.localeCompare(b.title);
+}
+
+/** All published posts (database + Markdown files), newest first. */
+export async function getAllPosts(): Promise<PostMeta[]> {
+  const fromDb = (await dbPosts()).map(dbMeta);
+  const taken = new Set(fromDb.map((post) => post.slug));
+  return [...fromDb, ...filePosts().filter((post) => !taken.has(post.slug))].sort(newestFirst);
+}
+
+/** A single published post with its rendered HTML, or null when unknown. */
+export async function getPost(slug: string): Promise<Post | null> {
+  const row = await dbPost(slug);
+  if (row) return { ...dbMeta(row), html: toHtml(row.body) };
+  return filePost(slug);
+}
+
+export { formatDate } from "./format";
