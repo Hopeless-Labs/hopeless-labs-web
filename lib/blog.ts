@@ -17,6 +17,20 @@ import { getSupabaseAdmin } from "./supabase";
 const CONTENT_DIR = path.join(process.cwd(), "content", "blog");
 const WORDS_PER_MINUTE = 200;
 
+// Fallback slug so a build is never empty. `output: "export"` refuses to build a
+// route whose generateStaticParams() returns nothing ("missing
+// generateStaticParams()"), and that would fail the deploy even though the code
+// is fine. See FALLBACK_POST below.
+export const FALLBACK_SLUG = "blog-unavailable";
+
+function blogDbEnabled(): boolean {
+  return Boolean(process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SECRET_KEY);
+}
+
+function note(message: string): void {
+  console.warn(`[blog] ${message}`);
+}
+
 export type PostMeta = {
   slug: string;
   title: string;
@@ -164,19 +178,29 @@ function dbMeta(row: DbPost): PostMeta {
 }
 
 async function dbPosts(): Promise<DbPost[]> {
+  if (!blogDbEnabled()) {
+    note("next_public_supabase_url / supabase_secret_key not set — skipping database posts");
+    return [];
+  }
   try {
     const { data, error } = await getSupabaseAdmin()
       .from("posts")
       .select(DB_COLUMNS)
       .eq("status", "published")
       .order("published_at", { ascending: false });
-    return error ? [] : ((data ?? []) as DbPost[]);
-  } catch {
+    if (error) {
+      note(`posts query failed (${error.code ?? "?"}): ${error.message}`);
+      return [];
+    }
+    return (data ?? []) as DbPost[];
+  } catch (caught) {
+    note(`posts query threw: ${caught instanceof Error ? caught.message : String(caught)}`);
     return [];
   }
 }
 
 async function dbPost(slug: string): Promise<DbPost | null> {
+  if (!blogDbEnabled()) return null;
   try {
     const { data, error } = await getSupabaseAdmin()
       .from("posts")
@@ -184,11 +208,35 @@ async function dbPost(slug: string): Promise<DbPost | null> {
       .eq("slug", slug)
       .eq("status", "published")
       .maybeSingle();
-    return error ? null : ((data as DbPost | null) ?? null);
-  } catch {
+    if (error) {
+      note(`post "${slug}" query failed (${error.code ?? "?"}): ${error.message}`);
+      return null;
+    }
+    return (data as DbPost | null) ?? null;
+  } catch (caught) {
+    note(`post "${slug}" query threw: ${caught instanceof Error ? caught.message : String(caught)}`);
     return null;
   }
 }
+
+// Shown when there is nothing else to build. It keeps `output: export` happy
+// and, more usefully, tells a visitor the site is up but its posts are missing
+// instead of 404-ing. Not linked from anywhere.
+const FALLBACK_POST: PostMeta = {
+  slug: FALLBACK_SLUG,
+  title: "Posts are unavailable",
+  summary:
+    "The blog could not reach its database during the last build, so no posts were published.",
+  date: "1970-01-01",
+  author: "Hopeless Labs",
+  tags: [],
+  readingMinutes: 1,
+};
+
+const FALLBACK_HTML = `<p>This build had no posts to publish: the blog database was
+unreachable or not configured (for example a missing
+<code>NEXT_PUBLIC_SUPABASE_URL</code> / <code>SUPABASE_SECRET_KEY</code>
+environment variable). Blog posts will reappear after the next successful build.</p>`;
 
 // ---------------------------------------------------------------------------
 // Public API
@@ -202,11 +250,17 @@ function newestFirst(a: PostMeta, b: PostMeta): number {
 export async function getAllPosts(): Promise<PostMeta[]> {
   const fromDb = (await dbPosts()).map(dbMeta);
   const taken = new Set(fromDb.map((post) => post.slug));
-  return [...fromDb, ...filePosts().filter((post) => !taken.has(post.slug))].sort(newestFirst);
+  const merged = [...fromDb, ...filePosts().filter((post) => !taken.has(post.slug))].sort(
+    newestFirst,
+  );
+  if (merged.length > 0) return merged;
+  note("no posts found — emitting a placeholder so the static export can build");
+  return [FALLBACK_POST];
 }
 
 /** A single published post with its rendered HTML, or null when unknown. */
 export async function getPost(slug: string): Promise<Post | null> {
+  if (slug === FALLBACK_SLUG) return { ...FALLBACK_POST, html: FALLBACK_HTML };
   const row = await dbPost(slug);
   if (row) return { ...dbMeta(row), html: toHtml(row.body) };
   return filePost(slug);
