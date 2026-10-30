@@ -31,41 +31,40 @@ of HTML/CSS/JS that any static host or CDN can serve.
   `rss.xml`.
 - `components/` — `Header`, `Footer`; `components/admin/` — login form, post
   table, post editor.
-- `content/blog/` — one Markdown file per post. The filename is the slug.
+- `content/blog/` — optional Markdown seed for `npm run db:import`; the site does
+  not read it at build time.
+- `docs/publishing.md` — writer-facing guide to the admin panel (Indonesian).
 - `lib/site.ts` — single source of truth for site constants, nav, and the
   product catalogue.
-- `lib/blog.ts` — reads `content/blog`, parses frontmatter, renders Markdown.
+- `lib/blog.ts` — merges published rows from the database with any Markdown
+  files, renders Markdown, and degrades to a placeholder if the database is
+  unreachable.
 - `lib/supabase.ts` — Supabase clients (publishable + secret key).
 - `scripts/db-check.mjs` — connectivity smoke test (`npm run db:check`).
+- `scripts/import-posts.mjs` — Markdown → database import (`npm run db:import`).
 - `supabase/` — CLI config and SQL migrations.
 
 ## Blog
 
-Add a file to `content/blog/<slug>.md` with this frontmatter:
+Posts live in `public.posts` and are written from `/admin` — there is no
+Markdown directory to edit any more. **Writers: see
+[`docs/publishing.md`](docs/publishing.md)** (Indonesian) for the panel
+walkthrough, Markdown reference, and why publishing needs a rebuild.
 
-```markdown
----
-title: "Post title"
-summary: "One or two sentences for the index page and social cards."
-date: 2026-10-27
-author: jeagercoder
-tags: [rsl, tutorial]
-draft: false
----
-```
+A build reads the database at build time (`lib/blog.ts`) and bakes the published
+posts into `/blog`, the post pages, `sitemap.xml`, and `rss.xml`. Content is
+authored by site staff, so the rendered HTML is trusted.
 
-`title`, `summary`, `date`, and `author` are used by the page and by
-`/rss.xml`; `tags` render as chips; `draft: true` hides the post from the site
-and the sitemap. Posts are sorted by `date`, newest first, and the index,
-sitemap, and feed update on the next build.
-
-The Markdown posts that used to ship in this directory have moved into
-`public.posts` and are edited from `/admin`; the directory is no longer read at
-build time. To pull a file back in (or seed a fresh project):
+To seed a project from Markdown files (`content/blog/*.md`, upserted by slug):
 
 ```bash
-npm run db:import   # content/blog/*.md → posts, upserted by slug
+npm run db:import
 ```
+
+If the database is unreachable during a build — missing env vars, wrong key, no
+network — the build still succeeds and emits a single placeholder page at
+`/blog/blog-unavailable` with a `[blog] ...` warning in the log, rather than
+failing the deploy. The placeholder is excluded from the sitemap and the feed.
 
 ## Database (Supabase)
 
@@ -152,6 +151,25 @@ After that the admin panel signs in as that user with
 `getSupabase().auth.signInWithPassword(...)`; writes go through the publishable
 key and are allowed by the `posts: admins *` policies. The secret key is never
 needed in the browser.
+
+With the secret key you can do the same from a script, without the dashboard:
+
+```bash
+# create an auto-confirmed user, then promote it
+curl -X POST "$NEXT_PUBLIC_SUPABASE_URL/auth/v1/admin/users" \
+  -H "apikey: $SUPABASE_SECRET_KEY" -H "Authorization: Bearer $SUPABASE_SECRET_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{"email":"writer@hopleslab.com","password":"...","email_confirm":true}'
+
+curl -X PATCH "$NEXT_PUBLIC_SUPABASE_URL/rest/v1/profiles?id=eq.<user-id>" \
+  -H "apikey: $SUPABASE_SECRET_KEY" -H "Authorization: Bearer $SUPABASE_SECRET_KEY" \
+  -H "Content-Type: application/json" -H "Prefer: return=representation" \
+  -d '{"role":"admin"}'
+```
+
+Note the address is an identity only: with no MX record on the domain, those
+accounts cannot receive mail, so password resets have to be triggered from the
+Supabase dashboard.
 
 ## Admin panel
 
