@@ -5,10 +5,18 @@
   "description": "Official website for Hopeless Labs",
   "scripts": {
     "dev": "next dev",
+    "prebuild": "rm -rf .next",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "db:check": "node --env-file=.env.local scripts/db-check.mjs",
+    "db:psql": "sh -c 'set -a; . ./.env.local; set +a; exec psql \"$SUPABASE_DB_URL\" \"$@\"' sh",
+    "db:import": "node --env-file=.env.local scripts/import-posts.mjs",
+    "db:new": "supabase migration new",
+    "db:push": "sh -c 'set -a; . ./.env.local; set +a; exec npx supabase db push --db-url \"$SUPABASE_DB_URL\"'",
+    "db:types": "sh -c 'set -a; . ./.env.local; set +a; exec npx supabase gen types typescript --db-url \"$SUPABASE_DB_URL\" --schema public' > lib/database.types.ts"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.118.0",
     "marked": "^18.1.2",
     "next": "16.2.6",
     "react": "19.2.4",
@@ -19,6 +27,7 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "supabase": "^2.122.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
