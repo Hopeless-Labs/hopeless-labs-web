@@ -120,9 +120,10 @@ Setelah tersimpan, kembali ke daftar artikel, dan statistik di atas daftar
 
 ## 4. Format Markdown yang didukung
 
-Buka **[`markdown-cheatsheet.html`](markdown-cheatsheet.html)** (klik dua kali di
-file explorer, tidak butuh server atau internet) — di sana setiap format
-diperlihatkan berdampingan: apa yang diketik dan hasilnya di situs.
+Buka **https://www.hopeless-labs.com/docs/markdown-cheatsheet.html** — di sana
+setiap format diperlihatkan berdampingan: apa yang diketik dan hasilnya di
+situs. File-nya juga ada di `public/docs/markdown-cheatsheet.html`, jadi bisa
+dibuka langsung dari disk tanpa internet.
 
 Yang paling sering dipakai:
 
@@ -231,7 +232,8 @@ kalau sedang mengedit artikel yang sama.
 - Artikel dibaca saat build di `lib/blog.ts`; setelah publish, situs perlu
   di-build ulang
 - Membuat akun admin baru: lihat README, bagian "First admin"
-- Referensi format: `docs/markdown-cheatsheet.html` (berdiri sendiri, tanpa build).
+- Referensi format: `public/docs/markdown-cheatsheet.html`, tersaji di
+  `/docs/markdown-cheatsheet.html` (berdiri sendiri, tanpa build).
   Pratinjau di dokumen itu memakai gaya dari `app/globals.css`, dan isinya
   dicocokkan dengan `node scripts/check-markdown.mjs` — jalankan ulang kalau
   ada format baru yang mau didokumentasikan.
