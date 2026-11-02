@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { SITE } from "@/lib/site";
 
 import "./globals.css";
@@ -104,6 +105,10 @@ export default function RootLayout({
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />
+        {/* Floating theme switch, bottom-right, stays put on scroll. */}
+        <div className="fixed bottom-5 right-5 z-50">
+          <ThemeToggle className="bg-background/90 shadow-lg backdrop-blur" />
+        </div>
       </body>
     </html>
   );

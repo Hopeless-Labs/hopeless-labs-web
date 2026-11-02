@@ -1,11 +1,10 @@
 import Link from "next/link";
 
 import { NAV, SITE } from "@/lib/site";
-import { ThemeToggle } from "@/components/ThemeToggle";
 
-// Static server component. The only client JS on the public site is the
-// <ThemeToggle> in the header; the mobile menu stays a CSS-only <details>
-// disclosure so it works in a fully static export without extra JavaScript.
+// Static server component. The mobile menu is a CSS-only <details> disclosure so
+// it works in a fully static export without extra JavaScript; the theme toggle
+// lives as a floating control in app/layout.tsx.
 export function Header() {
   return (
     <header className="sticky top-0 z-10 border-b border-border bg-background/85 backdrop-blur">
@@ -33,7 +32,6 @@ export function Header() {
           >
             Docs
           </a>
-          <ThemeToggle />
           <a
             href={SITE.github}
             className="rounded-md bg-accent px-3 py-1.5 font-medium text-background hover:bg-accent-strong"
@@ -94,10 +92,6 @@ export function Header() {
             >
               GitHub
             </a>
-            <div className="mt-1 flex items-center justify-between border-t border-border px-1 pt-2">
-              <span className="label">Theme</span>
-              <ThemeToggle />
-            </div>
           </nav>
         </details>
       </div>
