@@ -82,11 +82,21 @@ export default function RootLayout({
     <html
       lang="en"
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
+      suppressHydrationWarning
     >
       {/* suppressHydrationWarning: browser extensions (e.g. ColorZilla injects
           cz-shortcut-listen) mutate <body> before hydration, which otherwise
           logs a mismatch warning on every page load. Scoped to this element. */}
       <body className="flex min-h-full flex-col" suppressHydrationWarning>
+        {/* Apply the saved (or OS) theme before first paint so there is no
+            light/dark flash. Kept inline and tiny; the toggle in the header
+            only flips the class + localStorage afterwards. */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html:
+              "(function(){try{var s=localStorage.getItem('theme');var d=s?s==='dark':window.matchMedia('(prefers-color-scheme: dark)').matches;var r=document.documentElement;r.classList.toggle('theme-dark',d);r.classList.toggle('theme-light',!d);}catch(e){}})();",
+          }}
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(orgJsonLd) }}

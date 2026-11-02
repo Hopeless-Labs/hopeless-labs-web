@@ -1,9 +1,12 @@
 @import "tailwindcss";
 
-/* Light defaults, overridden by `prefers-color-scheme: dark`. Both
- * sets live as CSS variables so Tailwind utilities like `bg-muted`
- * and `text-subtle` follow the active scheme without a `dark:` prefix.
- * Brand palette mirrors the ruso-frontend (orange accent). */
+/* Palette tokens. Light is the default set; the OS preference switches to
+ * dark unless the visitor has picked a theme explicitly. The toggle writes
+ * `theme-light` / `theme-dark` on <html> (and localStorage), and the inline
+ * no-flash script in app/layout.tsx applies that before first paint. Tailwind
+ * utilities like `bg-muted` and `text-subtle` follow the active tokens, so
+ * components never need a `dark:` prefix. Brand palette mirrors the
+ * ruso-frontend (orange accent). */
 :root {
   --background: #fafafa;
   --foreground: #0a0a0a;
@@ -12,6 +15,7 @@
   --subtle: #71717a;
   --accent: #ea580c;
   --accent-strong: #c2410c;
+  color-scheme: light;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -23,7 +27,32 @@
     --subtle: #a1a1aa;
     --accent: #f97316;
     --accent-strong: #fb923c;
+    color-scheme: dark;
   }
+}
+
+/* An explicit choice (from the toggle) wins over the OS preference. These
+ * selectors out-specify the `:root` rules above. */
+html.theme-light {
+  --background: #fafafa;
+  --foreground: #0a0a0a;
+  --muted: #f4f4f5;
+  --border: #e4e4e7;
+  --subtle: #71717a;
+  --accent: #ea580c;
+  --accent-strong: #c2410c;
+  color-scheme: light;
+}
+
+html.theme-dark {
+  --background: #0a0a0a;
+  --foreground: #fafafa;
+  --muted: #18181b;
+  --border: #27272a;
+  --subtle: #a1a1aa;
+  --accent: #f97316;
+  --accent-strong: #fb923c;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -358,5 +387,42 @@ body {
 
 .scroll-slim::-webkit-scrollbar-track {
   background: transparent;
+}
+
+/* Theme toggle glyph swap. Done in CSS so the button's markup is identical on
+ * the server and client (no hydration mismatch) and the correct icon shows
+ * before hydration. Sun = "switch to light", moon = "switch to dark". */
+.theme-icon-sun {
+  display: none;
+}
+
+.theme-icon-moon {
+  display: inline;
+}
+
+@media (prefers-color-scheme: dark) {
+  .theme-icon-sun {
+    display: inline;
+  }
+
+  .theme-icon-moon {
+    display: none;
+  }
+}
+
+html.theme-light .theme-icon-sun {
+  display: none;
+}
+
+html.theme-light .theme-icon-moon {
+  display: inline;
+}
+
+html.theme-dark .theme-icon-sun {
+  display: inline;
+}
+
+html.theme-dark .theme-icon-moon {
+  display: none;
 }
 
