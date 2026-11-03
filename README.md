@@ -27,7 +27,8 @@ of HTML/CSS/JS that any static host or CDN can serve.
 ## Structure
 
 - `app/` — routes (`/`, `/products`, `/blog`, `/team`, `/about`, `/admin`), root
-  layout + global SEO, `sitemap.ts`, `robots.ts`, `manifest.ts`, `icon.svg`,
+  layout + global SEO, `sitemap.ts`, `robots.ts`, `manifest.ts`, `icon.png`,
+  `apple-icon.png`, `favicon.ico`, `opengraph-image.*`,
   `rss.xml`.
 - `components/` — `Header`, `Footer`; `components/admin/` — login form, post
   table, post editor.
@@ -35,8 +36,9 @@ of HTML/CSS/JS that any static host or CDN can serve.
   not read it at build time.
 - `docs/publishing.md` — writer-facing guide to the admin panel (Indonesian).
 - `public/docs/markdown-cheatsheet.html` — standalone Markdown reference for
-  writers, served at `/docs/markdown-cheatsheet.html`. Every construct shown as
-  syntax next to its rendered result; no server, no internet needed.
+  writers, served at `/docs/markdown-cheatsheet/` (`trailingSlash: true` means
+  the `.html` form 404s). Every construct shown as syntax next to its rendered
+  result; no server, no internet needed.
   `scripts/check-markdown.mjs` prints what the renderer actually emits, so the
   sheet can be re-verified.
 - `lib/site.ts` — single source of truth for site constants, nav, and the

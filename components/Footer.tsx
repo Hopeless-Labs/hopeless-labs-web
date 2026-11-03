@@ -8,8 +8,12 @@ export function Footer() {
     <footer className="border-t border-border">
       <div className="mx-auto flex max-w-6xl flex-col gap-6 px-6 py-10 sm:flex-row sm:items-start sm:justify-between">
         <div className="max-w-sm">
-          <p className="font-mono text-sm font-bold">
-            hopeless<span className="text-subtle">/labs</span>
+          <p className="flex items-center gap-2 font-mono text-sm font-bold">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo.svg" alt="" aria-hidden="true" width={23} height={16} className="h-4 w-auto" />
+            <span>
+              hopeless<span className="text-subtle">/labs</span>
+            </span>
           </p>
           <p className="mt-2 text-sm text-subtle">{SITE.tagline}</p>
         </div>

@@ -11,10 +11,17 @@ export function Header() {
       <div className="mx-auto flex max-w-6xl items-center justify-between gap-4 px-5 py-4 sm:px-6">
         <Link
           href="/"
-          className="font-mono text-lg font-bold tracking-tight hover:text-accent"
+          className="flex items-center gap-2.5 font-mono text-lg font-bold tracking-tight hover:text-accent"
+          aria-label={`${SITE.name} — home`}
         >
-          hopeless
-          <span className="text-subtle">/labs</span>
+          {/* Monogram glyph from the brand logo; text/currentColor so it follows
+              the light/dark palette like the rest of the header. */}
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo.svg" alt="" aria-hidden="true" width={29} height={20} className="h-5 w-auto" />
+          <span>
+            hopeless
+            <span className="text-subtle">/labs</span>
+          </span>
         </Link>
 
         {/* Desktop nav */}

@@ -49,11 +49,30 @@ export const metadata: Metadata = {
     description: SITE.description,
     url: SITE.url,
     locale: "en_US",
+    // Share card, 1200x630. `app/opengraph-image.{png,jpg}` is the raster the
+    // scrapers read; the `.svg` next to it is the editable source and is named
+    // explicitly here because Next's file convention already owns the route.
+    images: [
+      {
+        url: "/opengraph-image.png",
+        width: 1200,
+        height: 630,
+        alt: `${SITE.name} — ${SITE.tagline}`,
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
     title: `${SITE.name} — ${SITE.tagline}`,
     description: SITE.description,
+    images: [
+      {
+        url: "/twitter-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: `${SITE.name} — ${SITE.tagline}`,
+      },
+    ],
   },
   robots: {
     index: true,
