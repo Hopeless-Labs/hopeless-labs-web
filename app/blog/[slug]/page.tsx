@@ -46,8 +46,8 @@ export default async function BlogPostPage({ params }: PageProps) {
   const older = index >= 0 && index < posts.length - 1 ? posts[index + 1] : undefined;
 
   return (
-    <article className="mx-auto max-w-2xl px-6 py-16 sm:py-20">
-      <header>
+    <article className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
+      <header className="max-w-3xl">
         <p className="font-mono text-sm text-accent">
           <Link href="/blog" className="hover:text-accent-strong">
             Blog
@@ -82,17 +82,17 @@ export default async function BlogPostPage({ params }: PageProps) {
         <img
           src={post.cover}
           alt=""
-          className="mt-10 w-full rounded-xl border border-border object-cover"
+          className="mt-10 w-full max-w-3xl rounded-xl border border-border object-cover"
         />
       )}
 
       {/* Markdown is authored by site staff, so the HTML is trusted. */}
       <div
-        className="prose mt-10"
+        className="prose mt-10 max-w-3xl"
         dangerouslySetInnerHTML={{ __html: post.html }}
       />
 
-      <nav className="mt-14 flex flex-col gap-3 border-t border-border pt-6 text-sm sm:flex-row sm:items-start sm:justify-between">
+      <nav className="mt-14 flex max-w-3xl flex-col gap-3 border-t border-border pt-6 text-sm sm:flex-row sm:items-start sm:justify-between">
         <Link href="/blog" className="font-medium text-accent hover:text-accent-strong">
           ← All posts
         </Link>

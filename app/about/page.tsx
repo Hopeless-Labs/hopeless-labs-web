@@ -17,7 +17,7 @@ export const metadata: Metadata = {
 
 export default function AboutPage() {
   return (
-    <div className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
+    <div className="mx-auto max-w-6xl px-6 py-16 sm:py-20">
       <p className="font-mono text-sm text-accent">About</p>
       <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
         We make security checks worth sharing.
@@ -46,7 +46,7 @@ export default function AboutPage() {
       </div>
 
       <h2 className="mt-14 text-xl font-semibold">What we value</h2>
-      <dl className="mt-6 flex flex-col gap-5">
+      <dl className="mt-6 grid gap-6 sm:grid-cols-3">
         <Value
           term="Legibility over magic"
           desc="If you can't read what a tool does, you can't trust it. Everything we ship is meant to be read."
@@ -63,7 +63,7 @@ export default function AboutPage() {
 
       <section className="mt-14 rounded-xl border border-border p-8">
         <h2 className="text-xl font-semibold">Join the community</h2>
-        <p className="mt-2 text-subtle">
+        <p className="mt-2 max-w-2xl text-subtle">
           The work happens in the open on GitHub — issues, discussions, and pull
           requests are all welcome. Everyone&apos;s invited to contribute.
         </p>
