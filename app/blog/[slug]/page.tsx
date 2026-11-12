@@ -47,13 +47,13 @@ export default async function BlogPostPage({ params }: PageProps) {
 
   return (
     <article className="mx-auto max-w-3xl px-6 py-16 sm:py-20">
-      <header className="max-w-3xl">
+      <header>
         <p className="font-mono text-sm text-accent">
           <Link href="/blog" className="hover:text-accent-strong">
             Blog
           </Link>
         </p>
-        <h1 className="mt-3 text-balance text-3xl font-bold tracking-tight sm:text-4xl">
+        <h1 className="mt-3 text-3xl font-bold tracking-tight sm:text-4xl">
           {post.title}
         </h1>
         <div className="mt-4 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-xs text-subtle">
