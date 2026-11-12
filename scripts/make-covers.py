@@ -308,6 +308,47 @@ def scene_language(iso):
     return "".join(b)
 
 
+def scene_unified(iso):
+    """Three separate cubes (runtime, CLI, registry) merging into one unified cube."""
+    b = []
+    # Glow accents
+    b.append(glow(iso, 1.0, 1.5, 1.2, 280, PAL["cyan"], 0.18))
+    b.append(glow(iso, 2.5, 0.8, 1.5, 300, PAL["orange"], 0.20))
+    
+    # Left cube (purple - runtime)
+    b.append(shadow(iso, -0.3, 0.2, 1.2, 1.2, op=0.45))
+    b.append(box(iso, -0.3, 0.2, 0.0, 1.2, 1.2, 1.2, PAL["purple"]))
+    
+    # Middle cube (cyan - CLI)
+    b.append(shadow(iso, 1.0, -0.1, 1.2, 1.2, op=0.45))
+    b.append(box(iso, 1.0, -0.1, 0.0, 1.2, 1.2, 1.2, PAL["cyan"]))
+    
+    # Right cube (blue - registry)
+    b.append(shadow(iso, 2.3, 0.5, 1.2, 1.2, op=0.45))
+    b.append(box(iso, 2.3, 0.5, 0.0, 1.2, 1.2, 1.2, PAL["blue"]))
+    
+    # Center unified cube (orange - merged product)
+    b.append(shadow(iso, 0.8, 0.5, 1.6, 1.6, z=0.8, op=0.5, spread=1.2))
+    b.append(glow(iso, 1.6, 1.3, 1.4, 200, PAL["orange"], 0.25))
+    b.append(box(iso, 0.8, 0.5, 0.8, 1.6, 1.6, 1.6, PAL["orange"]))
+    
+    # Small connecting elements
+    for cx, cy, sz, s, col in [(0.2, 0.6, 0.5, 0.35, PAL["amber"]),
+                               (2.0, 0.2, 0.4, 0.3, PAL["sky"]),
+                               (1.5, 1.8, 0.55, 0.32, PAL["green"])]:
+        b.append(shadow(iso, cx, cy, s, s, z=sz, op=0.35, spread=1.0))
+        b.append(box(iso, cx, cy, sz, s, s, s, col))
+    
+    b.append(watermark())
+    return "".join(b)
+
+
+SCENES = {
+    "inside-the-bytecode": scene_bytecode,
+    "first-ruso-script": scene_first_script,
+    "why-a-language-not-a-plugin-api": scene_language,
+    "ruso-unified-release": scene_unified,
+}
 SCENES = {
     "inside-the-bytecode": scene_bytecode,
     "first-ruso-script": scene_first_script,
