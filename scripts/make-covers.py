@@ -309,35 +309,56 @@ def scene_language(iso):
 
 
 def scene_unified(iso):
-    """Three separate cubes (runtime, CLI, registry) merging into one unified cube."""
+    """Left: three separate repo stacks. Right: one unified tower. Arrow between."""
     b = []
-    # Glow accents
-    b.append(glow(iso, 1.0, 1.5, 1.2, 280, PAL["cyan"], 0.18))
-    b.append(glow(iso, 2.5, 0.8, 1.5, 300, PAL["orange"], 0.20))
+    b.append(glow(iso, 0.5, 1.2, 1.0, 240, PAL["purple"], 0.14))
+    b.append(glow(iso, 3.8, 1.0, 1.8, 280, PAL["orange"], 0.18))
     
-    # Left cube (purple - runtime)
-    b.append(shadow(iso, -0.3, 0.2, 1.2, 1.2, op=0.45))
-    b.append(box(iso, -0.3, 0.2, 0.0, 1.2, 1.2, 1.2, PAL["purple"]))
+    # Left side: three separate small stacks (representing 3 repos)
+    # Stack 1 - runtime (purple)
+    b.append(shadow(iso, -0.2, 0.3, 1.0, 1.0, op=0.45))
+    for i in range(3):
+        b.append(plate(iso, -0.2, 0.3, i * 0.35, 1.0, 1.0, PAL["purple"], thick=0.28))
+    b.append(box(iso, 0.05, 0.55, 1.05, 0.25, 0.25, 0.25, PAL["amber"]))
     
-    # Middle cube (cyan - CLI)
-    b.append(shadow(iso, 1.0, -0.1, 1.2, 1.2, op=0.45))
-    b.append(box(iso, 1.0, -0.1, 0.0, 1.2, 1.2, 1.2, PAL["cyan"]))
+    # Stack 2 - CLI (cyan)
+    b.append(shadow(iso, -0.3, 1.8, 1.0, 1.0, op=0.45))
+    for i in range(3):
+        b.append(plate(iso, -0.3, 1.8, i * 0.35, 1.0, 1.0, PAL["cyan"], thick=0.28))
+    b.append(box(iso, -0.05, 2.05, 1.05, 0.25, 0.25, 0.25, PAL["sky"]))
     
-    # Right cube (blue - registry)
-    b.append(shadow(iso, 2.3, 0.5, 1.2, 1.2, op=0.45))
-    b.append(box(iso, 2.3, 0.5, 0.0, 1.2, 1.2, 1.2, PAL["blue"]))
+    # Stack 3 - registry (blue)
+    b.append(shadow(iso, 0.8, 1.0, 1.0, 1.0, op=0.45))
+    for i in range(3):
+        b.append(plate(iso, 0.8, 1.0, i * 0.35, 1.0, 1.0, PAL["blue"], thick=0.28))
+    b.append(box(iso, 1.05, 1.25, 1.05, 0.25, 0.25, 0.25, PAL["indigo"]))
     
-    # Center unified cube (orange - merged product)
-    b.append(shadow(iso, 0.8, 0.5, 1.6, 1.6, z=0.8, op=0.5, spread=1.2))
-    b.append(glow(iso, 1.6, 1.3, 1.4, 200, PAL["orange"], 0.25))
-    b.append(box(iso, 0.8, 0.5, 0.8, 1.6, 1.6, 1.6, PAL["orange"]))
+    # Divider line
+    d1 = iso.p(2.0, 3.2, 0)
+    d2 = iso.p(2.0, -0.5, 0)
+    b.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#3a4759" '
+             'stroke-width="2.5" stroke-dasharray="12 14" opacity="0.85"/>'
+             % (d1[0], d1[1], d2[0], d2[1]))
     
-    # Small connecting elements
-    for cx, cy, sz, s, col in [(0.2, 0.6, 0.5, 0.35, PAL["amber"]),
-                               (2.0, 0.2, 0.4, 0.3, PAL["sky"]),
-                               (1.5, 1.8, 0.55, 0.32, PAL["green"])]:
-        b.append(shadow(iso, cx, cy, s, s, z=sz, op=0.35, spread=1.0))
-        b.append(box(iso, cx, cy, sz, s, s, s, col))
+    # Arrow
+    b.append(arrow2d(iso.p(1.85, 1.4, 1.2), iso.p(2.65, 1.4, 1.2), PAL["orange"], 7))
+    
+    # Right side: one unified tall stack (bigger, more prominent)
+    b.append(shadow(iso, 2.85, 0.5, 1.8, 1.8, op=0.5))
+    colors_unified = [PAL["purple"], PAL["cyan"], PAL["blue"], 
+                      PAL["orange"], PAL["orange"], PAL["orange"]]
+    for i, col in enumerate(colors_unified):
+        thick = 0.32 if i < 3 else 0.35
+        b.append(plate(iso, 2.85, 0.5, i * 0.38, 1.8, 1.8, col, thick=thick))
+        if i >= 3:  # unified layers glow
+            b.append(plate(iso, 2.85, 0.5, i * 0.38 + thick, 1.8, 1.8, col, 
+                          thick=0.02, opacity=0.95, edge=shade(col, 1.35), sw=1.4))
+    
+    # Version badge on top
+    topz = len(colors_unified) * 0.38 + 0.35
+    b.append(glow(iso, 3.75, 1.4, topz + 0.4, 150, PAL["green"], 0.22))
+    b.append(box(iso, 3.35, 1.0, topz, 0.8, 0.8, 0.8, PAL["green"]))
+    b.append(plate(iso, 3.50, 1.35, topz + 0.80, 0.28, 0.10, PAL["paper"], thick=0.02))
     
     b.append(watermark())
     return "".join(b)
@@ -348,11 +369,6 @@ SCENES = {
     "first-ruso-script": scene_first_script,
     "why-a-language-not-a-plugin-api": scene_language,
     "ruso-unified-release": scene_unified,
-}
-SCENES = {
-    "inside-the-bytecode": scene_bytecode,
-    "first-ruso-script": scene_first_script,
-    "why-a-language-not-a-plugin-api": scene_language,
 }
 
 
