@@ -364,11 +364,61 @@ def scene_unified(iso):
     return "".join(b)
 
 
+def scene_java4shell(iso):
+    """Heap layout: ordered stack of memory blocks overflowing off the right edge."""
+    b = []
+    # Ambient glows
+    b.append(glow(iso, 0.5, 1.5, 0.8, 260, PAL["slate"], 0.14))
+    b.append(glow(iso, 3.6, 0.9, 1.6, 300, PAL["red"], 0.22))
+    b.append(glow(iso, 4.5, 1.8, 0.4, 180, PAL["orange"], 0.18))
+
+    # Left side: clean, ordered heap blocks (the "normal" stack before the overflow)
+    heap_colors = [PAL["indigo"], PAL["blue"], PAL["sky"], PAL["cyan"],
+                   PAL["slate"], PAL["slate2"], PAL["indigo"]]
+    b.append(shadow(iso, 0.0, 0.3, 1.8, 1.4, op=0.50))
+    for i, col in enumerate(heap_colors):
+        b.append(plate(iso, 0.05, 0.3, i * 0.36, 1.8, 1.4, col, thick=0.28))
+
+    # Divider — the boundary the overflow crosses
+    d1 = iso.p(2.5, 3.5, 0)
+    d2 = iso.p(2.5, -0.5, 0)
+    b.append('<line x1="%.1f" y1="%.1f" x2="%.1f" y2="%.1f" stroke="#3a4759" '
+             'stroke-width="2" stroke-dasharray="10 12" opacity="0.70"/>'
+             % (d1[0], d1[1], d2[0], d2[1]))
+
+    # Arrow showing the stray write crossing the boundary
+    b.append(arrow2d(iso.p(1.95, 1.4, 1.65), iso.p(2.90, 1.4, 1.65), PAL["red"], 7))
+
+    # Right side: "corrupted" adjacent heap objects — wrong colors, tilted stack
+    # The overwritten memory: 62–63 bytes of fixed garbage
+    corrupt = [PAL["red"], PAL["orange"], PAL["red"],
+               PAL["orange"], PAL["red"], PAL["amber"]]
+    b.append(shadow(iso, 2.95, 0.4, 1.9, 1.5, op=0.52))
+    for i, col in enumerate(corrupt):
+        thick = 0.30 if i < 3 else 0.26
+        b.append(plate(iso, 2.95, 0.4, i * 0.34, 1.9, 1.5, col, thick=thick,
+                       opacity=0.90, edge=shade(col, 1.30), sw=1.3))
+
+    # Spilling small cubes — the stray bytes that escaped
+    spill = [(4.6, 0.6, 1.80, 0.38, PAL["red"]),
+             (4.9, 1.4, 0.85, 0.30, PAL["orange"]),
+             (5.1, 0.2, 1.20, 0.26, PAL["amber"]),
+             (4.3, 2.1, 0.40, 0.22, PAL["red"])]
+    for sx, sy, sz, ss, col in spill:
+        b.append(shadow(iso, sx + 0.05, sy + 0.05, ss, ss, z=0.0, op=0.38, spread=1.0))
+        b.append(glow(iso, sx + ss / 2, sy + ss / 2, sz + ss / 2, 80, col, 0.20))
+        b.append(box(iso, sx, sy, sz, ss, ss, ss, col))
+
+    b.append(watermark())
+    return "".join(b)
+
+
 SCENES = {
     "inside-the-bytecode": scene_bytecode,
     "first-ruso-script": scene_first_script,
     "why-a-language-not-a-plugin-api": scene_language,
     "ruso-unified-release": scene_unified,
+    "java4shell-cve-2026-114938": scene_java4shell,
 }
 
 
