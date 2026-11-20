@@ -413,12 +413,67 @@ def scene_java4shell(iso):
     return "".join(b)
 
 
+def scene_nginx2root(iso):
+    """nginx2root: clean pipe on the left fed to a chained exploit tower, root crown on top."""
+    b = []
+    # Ambient glows
+    b.append(glow(iso, 0.5, 1.0, 0.6, 240, PAL["slate2"], 0.13))
+    b.append(glow(iso, 2.9, 1.2, 2.0, 310, PAL["red"], 0.22))
+    b.append(glow(iso, 4.6, 1.5, 0.3, 180, PAL["orange"], 0.17))
+
+    # Left: nginx "normal" request pipeline -- stacked thin plates, cool colors
+    b.append(shadow(iso, -0.1, 0.5, 1.6, 1.2, op=0.45))
+    pipe_colors = [PAL["slate"], PAL["slate2"], PAL["blue"], PAL["sky"],
+                   PAL["cyan"], PAL["slate2"], PAL["slate"]]
+    for i, col in enumerate(pipe_colors):
+        b.append(plate(iso, -0.1, 0.5, i * 0.30, 1.6, 1.2, col, thick=0.22))
+
+    # Arrow: exploit chain crossing into corrupted heap
+    b.append(arrow2d(iso.p(1.65, 1.1, 1.55), iso.p(2.60, 1.1, 1.55), PAL["red"], 7))
+
+    # Center-right: exploit chain tower -- overgrown, red/orange layers, taller than left
+    b.append(shadow(iso, 2.65, 0.3, 2.0, 1.8, op=0.55))
+    chain_colors = [PAL["indigo"], PAL["purple"], PAL["red"],
+                    PAL["orange"], PAL["red"], PAL["orange"],
+                    PAL["amber"]]
+    for i, col in enumerate(chain_colors):
+        thick = 0.32
+        b.append(plate(iso, 2.65, 0.3, i * 0.36, 2.0, 1.8, col, thick=thick,
+                       opacity=0.92, edge=shade(col, 1.30), sw=1.3))
+
+    # Second arrow: worker -> root (upward leap)
+    topz_chain = len(chain_colors) * 0.36 + 0.32
+    b.append(arrow2d(iso.p(3.65, 1.2, topz_chain + 0.1),
+                     iso.p(3.65, 1.2, topz_chain + 0.75), PAL["amber"], 6))
+
+    # Root crown: glowing gold cube sitting on top of the chain
+    crownz = topz_chain + 0.75
+    b.append(glow(iso, 3.35, 0.95, crownz + 0.4, 170, PAL["amber"], 0.28))
+    b.append(box(iso, 3.0, 0.7, crownz, 1.3, 1.3, 1.1, PAL["amber"]))
+    # Crown plates on top
+    b.append(plate(iso, 3.10, 0.80, crownz + 1.10, 0.35, 0.35, PAL["paper"], thick=0.03))
+    b.append(plate(iso, 3.52, 0.80, crownz + 1.10, 0.35, 0.35, PAL["paper"], thick=0.03))
+    b.append(plate(iso, 3.10, 1.22, crownz + 1.10, 0.35, 0.35, PAL["paper"], thick=0.03))
+
+    # Escaping container: small floating cubes to the right
+    for ex, ey, ez, es, ec in [(5.1, 0.4, 2.1, 0.32, PAL["red"]),
+                                (5.3, 1.3, 1.3, 0.26, PAL["orange"]),
+                                (5.0, 2.1, 0.5, 0.22, PAL["amber"])]:
+        b.append(shadow(iso, ex + 0.04, ey + 0.04, es, es, z=0.0, op=0.35, spread=1.0))
+        b.append(glow(iso, ex + es / 2, ey + es / 2, ez + es / 2, 70, ec, 0.18))
+        b.append(box(iso, ex, ey, ez, es, es, es, ec))
+
+    b.append(watermark())
+    return "".join(b)
+
+
 SCENES = {
     "inside-the-bytecode": scene_bytecode,
     "first-ruso-script": scene_first_script,
     "why-a-language-not-a-plugin-api": scene_language,
     "ruso-unified-release": scene_unified,
     "java4shell-cve-2026-114938": scene_java4shell,
+    "nginx2root-rce-chain": scene_nginx2root,
 }
 
 
